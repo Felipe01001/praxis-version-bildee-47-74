@@ -308,7 +308,7 @@ export const JudicialProcessTab = ({
         </DialogContent>
       </Dialog>;
   };
-  return <Card className="py-[52px]">
+  return <Card className="py-0 mx-0 my-[70px]">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <FileSearch className="h-5 w-5 text-praxis-olive" />
