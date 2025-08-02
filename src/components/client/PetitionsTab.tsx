@@ -107,14 +107,8 @@ export const PetitionsTab = ({
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => navigate(`/petitions/new?clientId=${clientId}`)} className="bg-praxis-olive hover:bg-praxis-olive/90">
-            <FilePlus className="mr-2 h-4 w-4" />
-            Nova Petição
-          </Button>
-          <Button variant="outline" onClick={() => navigate(`/petitions/import?clientId=${clientId}`)}>
-            <Upload className="mr-2 h-4 w-4" />
-            Importar Petição
-          </Button>
+          
+          
         </div>
       </div>
 
