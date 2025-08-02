@@ -99,7 +99,7 @@ export const PetitionsTab = ({
     return cleanText.substring(0, maxLength) + '...';
   };
   return <div className="space-y-4 py-[37px]">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mx-0 px-0 my-[12px] py-0">
         <div>
           <h2 className="text-2xl font-bold">Petições do Cliente</h2>
           <p className="text-muted-foreground">
