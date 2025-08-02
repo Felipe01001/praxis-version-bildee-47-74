@@ -111,7 +111,7 @@ const Sidebar = ({
       
       <SubscriptionAccessWrapper action="criar um novo cliente">
         <Button asChild className="mx-4 bg-praxis-light-orange hover:bg-praxis-light-orange/90 text-white mb-6">
-          <Link to="/clients/new" className="flex items-center gap-2 mx-[17px]">
+          <Link to="/clients/new" className="flex items-center gap-2 mx-[20px]">
             <Plus className="h-4 w-4" />
             <span>Novo Cliente</span>
           </Link>
