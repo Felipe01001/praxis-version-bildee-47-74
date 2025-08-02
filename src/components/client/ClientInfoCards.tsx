@@ -16,7 +16,7 @@ export const ClientInfoCards = ({
     const age = Math.abs(ageDate.getUTCFullYear() - 1970);
     return `${formattedDate} (${age} anos)`;
   };
-  return <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-0 px-0 py-[11px]">
+  return <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-0 px-0 py-[38px]">
       <Card>
         <CardHeader>
           <CardTitle>Informações Pessoais</CardTitle>
