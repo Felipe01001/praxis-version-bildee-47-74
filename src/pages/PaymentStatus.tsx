@@ -53,7 +53,7 @@ const PaymentStatus = () => {
     if (!user || !subscriptionId) return;
 
     try {
-      // Check payment status
+      // Check local payment status first
       const { data: payment, error: paymentError } = await supabase
         .from('pagamentos')
         .select('*')
@@ -64,6 +64,74 @@ const PaymentStatus = () => {
       if (paymentError && paymentError.code !== 'PGRST116') {
         console.error('Error checking payment:', paymentError);
         return;
+      }
+
+      // If payment is still pending, check with AbacatePay API
+      if (payment && payment.status === 'pending' && payment.efi_charge_id) {
+        try {
+          console.log('Verificando pagamento no AbacatePay:', payment.efi_charge_id);
+          
+          // Get AbacatePay token from Supabase secrets via edge function
+          const { data: tokenData, error: tokenError } = await supabase.functions.invoke('get-abacatepay-token');
+          
+          if (tokenError || !tokenData?.token) {
+            console.error('Erro ao obter token AbacatePay:', tokenError);
+            throw new Error('Token não disponível');
+          }
+          
+          const abacateResponse = await fetch(`https://api.abacatepay.com/v1/pixQrCode/${payment.efi_charge_id}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${tokenData.token}`
+            }
+          });
+
+          if (abacateResponse.ok) {
+            const abacateData = await abacateResponse.json();
+            console.log('Resposta AbacatePay:', abacateData);
+
+            // Se o pagamento foi confirmado no AbacatePay
+            if (abacateData.data?.status === 'PAID') {
+              console.log('Pagamento confirmado no AbacatePay, ativando assinatura...');
+              
+              // Atualizar status do pagamento
+              const { error: updatePaymentError } = await supabase
+                .from('pagamentos')
+                .update({ status: 'confirmed', updated_at: new Date().toISOString() })
+                .eq('id', payment.id);
+
+              if (updatePaymentError) {
+                console.error('Erro ao atualizar pagamento:', updatePaymentError);
+              }
+
+              // Ativar assinatura por 1 mês
+              const nextPayment = new Date();
+              nextPayment.setMonth(nextPayment.getMonth() + 1);
+
+              const { error: profileError } = await supabase
+                .from('user_profiles')
+                .update({
+                  assinatura_ativa: true,
+                  assinatura_id: subscriptionId,
+                  data_assinatura: new Date().toISOString(),
+                  proximo_pagamento: nextPayment.toISOString(),
+                  updated_at: new Date().toISOString()
+                })
+                .eq('user_id', user.id);
+
+              if (profileError) {
+                console.error('Erro ao ativar assinatura:', profileError);
+              } else {
+                setPaymentStatus('confirmed');
+                toast.success('Pagamento confirmado! Sua assinatura está ativa.');
+                return;
+              }
+            }
+          }
+        } catch (abacateError) {
+          console.error('Erro ao verificar com AbacatePay:', abacateError);
+          // Continue with local verification
+        }
       }
 
       // Check subscription status
