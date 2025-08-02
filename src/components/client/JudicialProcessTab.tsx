@@ -4,136 +4,109 @@ import { usePraxisContext } from '@/context/PraxisContext';
 import { JudicialProcess, Status } from '@/types';
 import { Folder, FileSearch, RefreshCw, HelpCircle, AlertTriangle, Info, Clock, AlertCircle, Eye } from 'lucide-react';
 import { toast } from 'sonner';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { TRIBUNALS } from '@/constants/tribunals';
 import { supabase } from '@/integrations/supabase/client';
 import { JudicialProcessTimeline } from '@/components/judicial/JudicialProcessTimeline';
-
 interface JudicialProcessTabProps {
   clientId: string;
 }
-
-export const JudicialProcessTab = ({ clientId }: JudicialProcessTabProps) => {
+export const JudicialProcessTab = ({
+  clientId
+}: JudicialProcessTabProps) => {
   const navigate = useNavigate();
-  const { judicialProcesses, addJudicialProcess, updateJudicialProcess } = usePraxisContext();
+  const {
+    judicialProcesses,
+    addJudicialProcess,
+    updateJudicialProcess
+  } = usePraxisContext();
   const clientProcesses = judicialProcesses.filter(p => p.clientId === clientId);
-  
   const [isAddingProcess, setIsAddingProcess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [newProcess, setNewProcess] = useState({
     numeroProcesso: '',
-    tribunal: '',
+    tribunal: ''
   });
   const [selectedProcess, setSelectedProcess] = useState<JudicialProcess | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     // Validar formato CNJ (apenas números)
     const numeroProcessoRegex = /^\d{20}$/;
     if (!numeroProcessoRegex.test(newProcess.numeroProcesso)) {
       newErrors.numeroProcesso = 'O número do processo deve conter exatamente 20 dígitos';
     }
-    
+
     // Validar tribunal
     if (!newProcess.tribunal) {
       newErrors.tribunal = 'Selecione um tribunal';
     }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const fetchProcessData = async (numeroProcesso: string, tribunal: string) => {
     setIsLoading(true);
     try {
       console.log(`Consultando processo: ${numeroProcesso} no tribunal: ${tribunal}`);
-      
+
       // Usando a função Edge do Supabase em vez da API direta do DataJud
-      const { data, error } = await supabase.functions.invoke('datajud', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('datajud', {
         body: {
           numeroProcesso,
           tribunal
         }
       });
-      
       if (error) {
         console.error("Erro na chamada da função:", error);
         toast.error(`Erro ao consultar o processo: ${error.message}`, {
-          duration: 6000,
+          duration: 6000
         });
         return null;
       }
-      
+
       // Verificar se temos um erro específico retornado pela função
       if (data && data.error) {
         console.error("Erro retornado pela função:", data.error);
-        
         toast.error(data.error, {
           description: data.message || "Ocorreu um erro ao buscar o processo",
-          duration: 6000,
+          duration: 6000
         });
-        
         return null;
       }
-      
+
       // Verificar se o processo não foi encontrado
       if (data && data.found === false) {
         toast.error("Processo não encontrado", {
           description: data.message || `O processo ${numeroProcesso} não foi localizado na base de dados do tribunal ${tribunal}.`,
           duration: 6000
         });
-        
         return null;
       }
-      
+
       // Verificar se temos dados válidos
       if (!data || !data.data || !data.data.hits || data.data.hits?.hits?.length === 0) {
         toast.error("Dados do processo inválidos", {
           description: "A resposta da API não contém os dados esperados.",
           duration: 6000
         });
-        
         return null;
       }
-      
       console.log("Dados do processo encontrados:", data);
       toast.success("Processo encontrado com sucesso!");
       return data.data;
     } catch (error) {
       console.error("Erro ao buscar processo:", error);
-      
       if (error instanceof Error) {
         toast.error("Erro ao buscar dados", {
           description: error.message,
@@ -142,56 +115,55 @@ export const JudicialProcessTab = ({ clientId }: JudicialProcessTabProps) => {
       } else {
         toast.error("Ocorreu um erro desconhecido ao buscar o processo");
       }
-      
       return null;
     } finally {
       setIsLoading(false);
     }
   };
-  
   const handleAddProcess = async () => {
     if (!validateForm()) {
       toast.error('Corrija os erros no formulário');
       return;
     }
-    
     const processData = await fetchProcessData(newProcess.numeroProcesso, newProcess.tribunal);
-    
     if (processData) {
       const currentDate = new Date().toISOString();
       const novoProcesso = await addJudicialProcess({
         clientId,
         numeroProcesso: newProcess.numeroProcesso,
         tribunal: newProcess.tribunal.toUpperCase(),
-        court: newProcess.tribunal.toUpperCase(), // Use tribunal as court
-        processNumber: newProcess.numeroProcesso, // Use numeroProcesso as processNumber
-        phase: "Inicial", // Default phase
-        defendant: "Não informado", // Default defendant
-        status: "in-progress" as Status, // Default status
+        court: newProcess.tribunal.toUpperCase(),
+        // Use tribunal as court
+        processNumber: newProcess.numeroProcesso,
+        // Use numeroProcesso as processNumber
+        phase: "Inicial",
+        // Default phase
+        defendant: "Não informado",
+        // Default defendant
+        status: "in-progress" as Status,
+        // Default status
         dataCadastro: currentDate,
         updatedAt: currentDate,
         lastResponse: processData
       });
-      
       toast.success('Processo judicial vinculado com sucesso');
-      setNewProcess({ numeroProcesso: '', tribunal: '' });
+      setNewProcess({
+        numeroProcesso: '',
+        tribunal: ''
+      });
       setIsAddingProcess(false);
       setSelectedProcess(novoProcesso);
     }
   };
-  
   const handleUpdateProcessData = async (process: JudicialProcess) => {
     const processData = await fetchProcessData(process.numeroProcesso, process.tribunal);
-    
     if (processData) {
       const updatedProcess = {
         ...process,
         lastResponse: processData,
         updatedAt: new Date().toISOString()
       };
-      
       await updateJudicialProcess(updatedProcess);
-      
       toast.success('Dados do processo atualizados com sucesso');
       // Atualizar o processo selecionado se estiver visualizando ele
       if (selectedProcess?.id === process.id) {
@@ -199,7 +171,6 @@ export const JudicialProcessTab = ({ clientId }: JudicialProcessTabProps) => {
       }
     }
   };
-  
   const formatarData = (dataString: string) => {
     try {
       const data = new Date(dataString);
@@ -208,27 +179,22 @@ export const JudicialProcessTab = ({ clientId }: JudicialProcessTabProps) => {
       return dataString;
     }
   };
-  
+
   // Formatar o número do processo no padrão CNJ
   const formatProcessNumber = (number: string) => {
     // Remove qualquer formatação existente
     const cleaned = number.replace(/\D/g, '');
-    
     if (cleaned.length <= 7) return cleaned;
-    
     let formatted = cleaned.substring(0, 7);
     if (cleaned.length > 7) formatted += '-' + cleaned.substring(7, 9);
     if (cleaned.length > 9) formatted += '.' + cleaned.substring(9, 13);
     if (cleaned.length > 13) formatted += '.' + cleaned.substring(13, 14);
     if (cleaned.length > 14) formatted += '.' + cleaned.substring(14, 16);
     if (cleaned.length > 16) formatted += '.' + cleaned.substring(16);
-    
     return formatted;
   };
-
   const renderProcessCheckTips = () => {
-    return (
-      <Alert variant="default" className="mb-4 bg-blue-50 border-blue-200">
+    return <Alert variant="default" className="mb-4 bg-blue-50 border-blue-200">
         <AlertCircle className="h-4 w-4 text-blue-500" />
         <AlertTitle className="text-blue-700">Dicas para encontrar seu processo</AlertTitle>
         <AlertDescription className="text-blue-600">
@@ -239,13 +205,10 @@ export const JudicialProcessTab = ({ clientId }: JudicialProcessTabProps) => {
             <li>Alguns processos mais antigos ou sigilosos podem não estar disponíveis via API</li>
           </ul>
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>;
   };
-
   const renderGlossary = () => {
-    return (
-      <Dialog>
+    return <Dialog>
         <DialogTrigger asChild>
           <Button variant="outline" size="sm">
             <HelpCircle className="h-4 w-4 mr-2" />
@@ -343,12 +306,9 @@ export const JudicialProcessTab = ({ clientId }: JudicialProcessTabProps) => {
             </AccordionItem>
           </Accordion>
         </DialogContent>
-      </Dialog>
-    );
+      </Dialog>;
   };
-  
-  return (
-    <Card>
+  return <Card className="py-[52px]">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <FileSearch className="h-5 w-5 text-praxis-olive" />
@@ -363,8 +323,7 @@ export const JudicialProcessTab = ({ clientId }: JudicialProcessTabProps) => {
         </div>
       </CardHeader>
       <CardContent>
-        {isAddingProcess && (
-          <div className="border rounded-lg p-4 mb-6">
+        {isAddingProcess && <div className="border rounded-lg p-4 mb-6">
             <h3 className="text-lg font-medium mb-4">Vincular Processo Judicial</h3>
             
             {renderProcessCheckTips()}
@@ -374,16 +333,11 @@ export const JudicialProcessTab = ({ clientId }: JudicialProcessTabProps) => {
                 <label className="block text-sm font-medium mb-1">
                   Número do Processo <span className="text-destructive">*</span>
                 </label>
-                <Input 
-                  placeholder="00012345620238040001 (20 dígitos)"
-                  value={newProcess.numeroProcesso}
-                  onChange={(e) => setNewProcess({...newProcess, numeroProcesso: e.target.value.replace(/\D/g, '')})}
-                  className={errors.numeroProcesso ? 'border-destructive' : ''}
-                  maxLength={20}
-                />
-                {errors.numeroProcesso && (
-                  <p className="text-xs text-destructive">{errors.numeroProcesso}</p>
-                )}
+                <Input placeholder="00012345620238040001 (20 dígitos)" value={newProcess.numeroProcesso} onChange={e => setNewProcess({
+              ...newProcess,
+              numeroProcesso: e.target.value.replace(/\D/g, '')
+            })} className={errors.numeroProcesso ? 'border-destructive' : ''} maxLength={20} />
+                {errors.numeroProcesso && <p className="text-xs text-destructive">{errors.numeroProcesso}</p>}
                 <p className="text-xs text-muted-foreground">
                   Digite apenas os números, sem pontos ou traços.
                 </p>
@@ -393,24 +347,20 @@ export const JudicialProcessTab = ({ clientId }: JudicialProcessTabProps) => {
                 <label className="block text-sm font-medium mb-1">
                   Tribunal <span className="text-destructive">*</span>
                 </label>
-                <Select
-                  value={newProcess.tribunal}
-                  onValueChange={(value) => setNewProcess({...newProcess, tribunal: value})}
-                >
+                <Select value={newProcess.tribunal} onValueChange={value => setNewProcess({
+              ...newProcess,
+              tribunal: value
+            })}>
                   <SelectTrigger className={errors.tribunal ? 'border-destructive' : ''}>
                     <SelectValue placeholder="Selecione um tribunal" />
                   </SelectTrigger>
                   <SelectContent>
-                    {TRIBUNALS.map((tribunal) => (
-                      <SelectItem key={tribunal.value} value={tribunal.value}>
+                    {TRIBUNALS.map(tribunal => <SelectItem key={tribunal.value} value={tribunal.value}>
                         {tribunal.label}
-                      </SelectItem>
-                    ))}
+                      </SelectItem>)}
                   </SelectContent>
                 </Select>
-                {errors.tribunal && (
-                  <p className="text-xs text-destructive">{errors.tribunal}</p>
-                )}
+                {errors.tribunal && <p className="text-xs text-destructive">{errors.tribunal}</p>}
               </div>
             </div>
             
@@ -422,25 +372,16 @@ export const JudicialProcessTab = ({ clientId }: JudicialProcessTabProps) => {
             </div>
             
             <div className="flex justify-end">
-              <Button 
-                onClick={handleAddProcess}
-                disabled={isLoading}
-              >
+              <Button onClick={handleAddProcess} disabled={isLoading}>
                 {isLoading ? 'Consultando...' : 'Vincular Processo'}
               </Button>
             </div>
-          </div>
-        )}
+          </div>}
         
-        {selectedProcess ? (
-          <div className="mb-4">
+        {selectedProcess ? <div className="mb-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedProcess(null)}
-                >
+                <Button variant="ghost" size="sm" onClick={() => setSelectedProcess(null)}>
                   &larr; Voltar
                 </Button>
                 <h3 className="text-lg font-medium">
@@ -448,30 +389,15 @@ export const JudicialProcessTab = ({ clientId }: JudicialProcessTabProps) => {
                 </h3>
               </div>
               
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate(`/judicial-processes/${selectedProcess.id}`)}
-              >
+              <Button variant="outline" size="sm" onClick={() => navigate(`/judicial-processes/${selectedProcess.id}`)}>
                 <Eye className="h-4 w-4 mr-2" />
                 Ver página completa
               </Button>
             </div>
             
-            <JudicialProcessTimeline
-              process={selectedProcess}
-              onRefresh={() => handleUpdateProcessData(selectedProcess)}
-              isLoading={isLoading}
-            />
-          </div>
-        ) : clientProcesses.length > 0 ? (
-          <div className="space-y-4">
-            {clientProcesses.map((process) => (
-              <div 
-                key={process.id} 
-                className="border rounded p-4 hover:bg-muted/30 transition cursor-pointer"
-                onClick={() => setSelectedProcess(process)}
-              >
+            <JudicialProcessTimeline process={selectedProcess} onRefresh={() => handleUpdateProcessData(selectedProcess)} isLoading={isLoading} />
+          </div> : clientProcesses.length > 0 ? <div className="space-y-4">
+            {clientProcesses.map(process => <div key={process.id} className="border rounded p-4 hover:bg-muted/30 transition cursor-pointer" onClick={() => setSelectedProcess(process)}>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-2">
                     <Folder className="h-5 w-5 text-praxis-olive" />
@@ -487,31 +413,22 @@ export const JudicialProcessTab = ({ clientId }: JudicialProcessTabProps) => {
                     <p className="text-xs text-muted-foreground">
                       {formatarData(process.dataCadastro)}
                     </p>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedProcess(process);
-                      }}
-                    >
+                    <Button variant="ghost" size="sm" onClick={e => {
+                e.stopPropagation();
+                setSelectedProcess(process);
+              }}>
                       Ver detalhes
                     </Button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-10 text-muted-foreground">
+              </div>)}
+          </div> : <div className="text-center py-10 text-muted-foreground">
             <FileSearch className="h-12 w-12 mx-auto mb-3 opacity-30" />
             <p className="mb-2">Nenhum processo judicial vinculado a este cliente.</p>
             <p className="text-sm">
               Clique em "Adicionar Processo" para vincular um processo judicial a este cliente.
             </p>
-          </div>
-        )}
+          </div>}
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
