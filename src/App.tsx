@@ -8,6 +8,7 @@ import {
 import { AuthProvider } from './context/AuthContext';
 import { PraxisProvider } from './context/PraxisContext';
 import AuthGuard from './components/auth/AuthGuard';
+import SubscriptionGuard from './components/auth/SubscriptionGuard';
 import Login from './pages/auth/Login';
 
 import Signup from './pages/auth/Signup';
@@ -73,37 +74,37 @@ function AppRoutes() {
         <Route path="callback" element={<AuthCallback />} />
       </Route>
       
-      {/* Wrap all routes in Layout and protect with AuthGuard */}
+      {/* Wrap all routes in Layout and protect with AuthGuard and SubscriptionGuard */}
       <Route path="/" element={<Layout><Outlet /></Layout>}>
-        <Route index element={<AuthGuard><Index /></AuthGuard>} />
-        <Route path="dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
+        <Route index element={<AuthGuard><SubscriptionGuard><Index /></SubscriptionGuard></AuthGuard>} />
+        <Route path="dashboard" element={<AuthGuard><SubscriptionGuard><Dashboard /></SubscriptionGuard></AuthGuard>} />
         <Route path="profile" element={<AuthGuard><Profile /></AuthGuard>} />
         <Route path="change-password" element={<AuthGuard><ChangePassword /></AuthGuard>} />
-        <Route path="calendar" element={<AuthGuard><Calendar /></AuthGuard>} />
-        <Route path="search" element={<AuthGuard><Search /></AuthGuard>} />
-        <Route path="tasks" element={<AuthGuard><Tasks /></AuthGuard>} />
+        <Route path="calendar" element={<AuthGuard><SubscriptionGuard><Calendar /></SubscriptionGuard></AuthGuard>} />
+        <Route path="search" element={<AuthGuard><SubscriptionGuard><Search /></SubscriptionGuard></AuthGuard>} />
+        <Route path="tasks" element={<AuthGuard><SubscriptionGuard><Tasks /></SubscriptionGuard></AuthGuard>} />
         
-        <Route path="clients" element={<AuthGuard><Outlet /></AuthGuard>}>
+        <Route path="clients" element={<AuthGuard><SubscriptionGuard><Outlet /></SubscriptionGuard></AuthGuard>}>
           <Route index element={<ClientList />} />
           <Route path=":clientId" element={<ClientPage />} />
           <Route path=":clientId/edit" element={<ClientEditPage />} />
           <Route path="new" element={<ClientForm />} />
         </Route>
         
-        <Route path="cases" element={<AuthGuard><Outlet /></AuthGuard>}>
+        <Route path="cases" element={<AuthGuard><SubscriptionGuard><Outlet /></SubscriptionGuard></AuthGuard>}>
           <Route index element={<CaseList />} />
           <Route path="new" element={<CaseForm />} />
           <Route path=":caseId/timeline" element={<CaseTimelinePage />} />
         </Route>
         
-        <Route path="judicial-processes" element={<AuthGuard><Outlet /></AuthGuard>}>
+        <Route path="judicial-processes" element={<AuthGuard><SubscriptionGuard><Outlet /></SubscriptionGuard></AuthGuard>}>
           <Route index element={<JudicialProcessesList />} />
           <Route path="search" element={<SearchJudicialProcess />} />
           <Route path=":processId" element={<JudicialProcessDetailPage />} />
         </Route>
         
         {/* Rotas para petições */}
-        <Route path="petitions" element={<AuthGuard><Outlet /></AuthGuard>}>
+        <Route path="petitions" element={<AuthGuard><SubscriptionGuard><Outlet /></SubscriptionGuard></AuthGuard>}>
           <Route index element={<PetitionList />} />
           <Route path="new" element={<NewPetitionPage />} />
           <Route path="import" element={<ImportPetitionPage />} />
@@ -114,7 +115,7 @@ function AppRoutes() {
         </Route>
 
         {/* Rotas para legislação */}
-        <Route path="legislation" element={<AuthGuard><Outlet /></AuthGuard>}>
+        <Route path="legislation" element={<AuthGuard><SubscriptionGuard><Outlet /></SubscriptionGuard></AuthGuard>}>
           <Route index element={<LegislationSearch />} />
         </Route>
 

@@ -7,6 +7,7 @@ import { Check, Loader2, CreditCard, Zap, Users, Shield } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { PaymentTestButton } from '@/components/admin/PaymentTestButton';
 
 const SubscriptionPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -250,9 +251,12 @@ const SubscriptionPage = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Entre em contato conosco se tiver dúvidas sobre a assinatura.
               </p>
-              <Button variant="outline" size="sm">
-                Falar com Suporte
-              </Button>
+              <div className="flex gap-2 justify-center">
+                <Button variant="outline" size="sm">
+                  Falar com Suporte
+                </Button>
+                <PaymentTestButton />
+              </div>
             </CardContent>
           </Card>
         </div>
