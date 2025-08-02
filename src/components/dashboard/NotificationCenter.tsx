@@ -275,28 +275,28 @@ export default function NotificationCenter() {
         </DialogHeader>
 
         <Tabs defaultValue="upcoming" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="upcoming">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-1">
+            <TabsTrigger value="upcoming" className="text-xs md:text-sm">
               Próximas Tarefas
               {upcomingTasks.length > 0 && (
-                <Badge variant="secondary" className="ml-2">
+                <Badge variant="secondary" className="ml-1 md:ml-2 text-xs">
                   {upcomingTasks.length}
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="scheduled">
+            <TabsTrigger value="scheduled" className="text-xs md:text-sm">
               Notificações Agendadas
               {notifications.filter(n => n.status === 'pending').length > 0 && (
-                <Badge variant="secondary" className="ml-2">
+                <Badge variant="secondary" className="ml-1 md:ml-2 text-xs">
                   {notifications.filter(n => n.status === 'pending').length}
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="settings">
-              <Settings className="h-4 w-4 mr-2" />
+            <TabsTrigger value="settings" className="text-xs md:text-sm">
+              <Settings className="h-4 w-4 mr-1 md:mr-2" />
               Configurações
             </TabsTrigger>
-            <TabsTrigger value="history">Histórico</TabsTrigger>
+            <TabsTrigger value="history" className="text-xs md:text-sm">Histórico</TabsTrigger>
           </TabsList>
 
           <div className="mt-4 max-h-[60vh] overflow-y-auto">
