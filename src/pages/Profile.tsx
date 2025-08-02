@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +13,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { BRAZILIAN_STATES, CITIES_BY_STATE } from '@/constants/locations';
 import SubscriptionSection from '@/components/profile/SubscriptionSection';
 import InvoicesSection from '@/components/profile/InvoicesSection';
-
 interface UserProfile {
   id: string;
   user_id: string;
@@ -25,9 +23,11 @@ interface UserProfile {
   created_at: string;
   updated_at: string;
 }
-
 const Profile = () => {
-  const { user, session } = useAuth();
+  const {
+    user,
+    session
+  } = useAuth();
   const [fullName, setFullName] = useState(user?.user_metadata?.full_name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [cpf, setCpf] = useState('');
@@ -40,37 +40,33 @@ const Profile = () => {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
-  
+
   // Get available cities based on selected state
   const availableCities = state ? CITIES_BY_STATE[state] || [] : [];
-  
+
   // Get DDD options based on selected state
   const getStateDDD = () => {
     const selectedState = BRAZILIAN_STATES.find(s => s.code === state);
     return selectedState ? selectedState.ddd : [];
   };
-  
+
   // Load user profile data on component mount
   useEffect(() => {
     if (user) {
       loadUserProfile();
     }
   }, [user]);
-  
   const loadUserProfile = async () => {
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
-      
+      const {
+        data,
+        error
+      } = await supabase.from('user_profiles').select('*').eq('user_id', user?.id).single();
       if (error && error.code !== 'PGRST116') {
         console.error('Error loading profile:', error);
         toast.error('Erro ao carregar perfil');
         return;
       }
-      
       if (data) {
         setCpf(data.cpf || '');
         setPhone(data.phone || '');
@@ -84,12 +80,12 @@ const Profile = () => {
       setLoading(false);
     }
   };
-  
+
   // Reset city when state changes
   useEffect(() => {
     setCity('');
   }, [state]);
-  
+
   // Get initials for avatar fallback
   const getInitials = () => {
     if (fullName) {
@@ -99,14 +95,12 @@ const Profile = () => {
       }
       return nameParts[0][0].toUpperCase();
     }
-    
     if (email) {
       return email[0].toUpperCase();
     }
-    
     return 'U';
   };
-  
+
   // Format phone number with mask
   const formatPhone = (value: string) => {
     const numbers = value.replace(/\D/g, '');
@@ -115,7 +109,7 @@ const Profile = () => {
     }
     return value;
   };
-  
+
   // Format CPF with mask
   const formatCPF = (value: string) => {
     const numbers = value.replace(/\D/g, '');
@@ -133,13 +127,13 @@ const Profile = () => {
     }
     return numbers;
   };
-  
+
   // Handle phone input change
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatPhone(e.target.value);
     setPhone(formatted);
   };
-  
+
   // Handle CPF input change
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatCPF(e.target.value);
@@ -152,12 +146,12 @@ const Profile = () => {
     const formatted = formatOAB(value);
     setOabNumber(formatted);
   };
-  
+
   // Handle file selection for avatar
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      
+
       // Preview the image
       const imageUrl = URL.createObjectURL(file);
       setAvatarUrl(imageUrl);
@@ -168,29 +162,26 @@ const Profile = () => {
   // Upload avatar to Supabase Storage
   const uploadAvatar = async (): Promise<string | null> => {
     if (!newAvatarFile) return avatarUrl;
-    
     try {
       setUploading(true);
-      
+
       // Create a unique file name
       const fileExt = newAvatarFile.name.split('.').pop();
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
-      
+
       // Upload the file
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, newAvatarFile);
-        
+      const {
+        error: uploadError
+      } = await supabase.storage.from('avatars').upload(filePath, newAvatarFile);
       if (uploadError) {
         throw uploadError;
       }
-      
+
       // Get the public URL
-      const { data: publicURL } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-        
+      const {
+        data: publicURL
+      } = supabase.storage.from('avatars').getPublicUrl(filePath);
       return publicURL.publicUrl;
     } catch (error) {
       console.error('Error uploading avatar:', error);
@@ -204,42 +195,39 @@ const Profile = () => {
   // Save profile changes
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
     try {
       setSaving(true);
-      
+
       // Upload avatar if a new one was selected
       let finalAvatarUrl = avatarUrl;
       if (newAvatarFile) {
-        finalAvatarUrl = await uploadAvatar() || avatarUrl;
+        finalAvatarUrl = (await uploadAvatar()) || avatarUrl;
       }
-      
+
       // Update user metadata
-      const { error: authError } = await supabase.auth.updateUser({
+      const {
+        error: authError
+      } = await supabase.auth.updateUser({
         email: email !== user?.email ? email : undefined,
         data: {
           full_name: fullName,
-          avatar_url: finalAvatarUrl,
-        },
+          avatar_url: finalAvatarUrl
+        }
       });
-      
       if (authError) throw authError;
-      
+
       // Update user profile
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .update({
-          cpf: cpf || null,
-          phone: phone,
-          oab_number: oabNumber || null,
-          state: state || null,
-          city: city || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', user?.id);
-      
+      const {
+        error: profileError
+      } = await supabase.from('user_profiles').update({
+        cpf: cpf || null,
+        phone: phone,
+        oab_number: oabNumber || null,
+        state: state || null,
+        city: city || null,
+        updated_at: new Date().toISOString()
+      }).eq('user_id', user?.id);
       if (profileError) throw profileError;
-      
       toast.success('Perfil atualizado com sucesso');
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -248,22 +236,17 @@ const Profile = () => {
       setSaving(false);
     }
   };
-  
   if (loading) {
-    return (
-      <div className="container max-w-2xl py-10">
+    return <div className="container max-w-2xl py-10">
         <div className="flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
-      </div>
-    );
+      </div>;
   }
-  
-  return (
-    <div className="container max-w-4xl py-10 space-y-6">
+  return <div className="container max-w-4xl space-y-6 py-[11px] mx-0 px-[3px]">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <Card>
+          <Card className="mx-0 px-0 py-0 my-0">
             <CardHeader>
               <CardTitle>Editar Perfil</CardTitle>
               <CardDescription>
@@ -281,21 +264,11 @@ const Profile = () => {
                   </Avatar>
                   
                   <div className="flex items-center space-x-2">
-                    <Label 
-                      htmlFor="avatar"
-                      className="flex items-center space-x-2 cursor-pointer text-sm text-praxis-olive hover:text-praxis-olive/80"
-                    >
+                    <Label htmlFor="avatar" className="flex items-center space-x-2 cursor-pointer text-sm text-praxis-olive hover:text-praxis-olive/80">
                       <Upload className="h-4 w-4" />
                       <span>Alterar foto</span>
                     </Label>
-                    <Input
-                      id="avatar"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleAvatarChange}
-                      disabled={uploading}
-                    />
+                    <Input id="avatar" type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} disabled={uploading} />
                   </div>
                 </div>
                 
@@ -303,39 +276,20 @@ const Profile = () => {
                   <Label htmlFor="fullName">Nome completo</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input 
-                      id="fullName"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="pl-9"
-                      placeholder="Seu nome completo"
-                    />
+                    <Input id="fullName" value={fullName} onChange={e => setFullName(e.target.value)} className="pl-9" placeholder="Seu nome completo" />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="email">E-mail</Label>
-                  <Input 
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="seu-email@exemplo.com"
-                  />
+                  <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="seu-email@exemplo.com" />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="cpf">CPF</Label>
                   <div className="relative">
                     <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input 
-                      id="cpf"
-                      value={cpf}
-                      onChange={handleCpfChange}
-                      className="pl-9"
-                      placeholder="000.000.000-00"
-                      maxLength={14}
-                    />
+                    <Input id="cpf" value={cpf} onChange={handleCpfChange} className="pl-9" placeholder="000.000.000-00" maxLength={14} />
                   </div>
                 </div>
                 
@@ -349,11 +303,9 @@ const Profile = () => {
                           <SelectValue placeholder="Selecione o estado" />
                         </SelectTrigger>
                         <SelectContent>
-                          {BRAZILIAN_STATES.map((stateOption) => (
-                            <SelectItem key={stateOption.code} value={stateOption.code}>
+                          {BRAZILIAN_STATES.map(stateOption => <SelectItem key={stateOption.code} value={stateOption.code}>
                               {stateOption.name}
-                            </SelectItem>
-                          ))}
+                            </SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
@@ -368,11 +320,9 @@ const Profile = () => {
                           <SelectValue placeholder={state ? "Selecione a cidade" : "Primeiro selecione o estado"} />
                         </SelectTrigger>
                         <SelectContent>
-                          {availableCities.map((cityOption) => (
-                            <SelectItem key={cityOption} value={cityOption}>
+                          {availableCities.map(cityOption => <SelectItem key={cityOption} value={cityOption}>
                               {cityOption}
-                            </SelectItem>
-                          ))}
+                            </SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
@@ -382,44 +332,26 @@ const Profile = () => {
                 <div className="space-y-2">
                   <Label htmlFor="phone">
                     Celular
-                    {state && getStateDDD().length > 0 && (
-                      <span className="text-sm text-gray-500 ml-2">
+                    {state && getStateDDD().length > 0 && <span className="text-sm text-gray-500 ml-2">
                         (DDD: {getStateDDD().join(', ')})
-                      </span>
-                    )}
+                      </span>}
                   </Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input 
-                      id="phone"
-                      value={phone}
-                      onChange={handlePhoneChange}
-                      className="pl-9"
-                      placeholder="(11) 99999-9999"
-                      maxLength={15}
-                    />
+                    <Input id="phone" value={phone} onChange={handlePhoneChange} className="pl-9" placeholder="(11) 99999-9999" maxLength={15} />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="oabNumber">
                     Número da OAB (opcional)
-                    {state && (
-                      <span className="text-sm text-gray-500 ml-2">
+                    {state && <span className="text-sm text-gray-500 ml-2">
                         (Formato: 123456/{state})
-                      </span>
-                    )}
+                      </span>}
                   </Label>
                   <div className="relative">
                     <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input 
-                      id="oabNumber"
-                      value={oabNumber}
-                      onChange={handleOabChange}
-                      className="pl-9"
-                      placeholder={state ? `123456/${state}` : "Primeiro selecione o estado"}
-                      disabled={!state}
-                    />
+                    <Input id="oabNumber" value={oabNumber} onChange={handleOabChange} className="pl-9" placeholder={state ? `123456/${state}` : "Primeiro selecione o estado"} disabled={!state} />
                   </div>
                 </div>
               </CardContent>
@@ -439,8 +371,6 @@ const Profile = () => {
           <InvoicesSection />
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Profile;
