@@ -1,0 +1,240 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 82 16% 52%;  /* Verde oliva (#8B9474) */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 100 30% 55%;  /* Verde amarelado (#C1CC99) */
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 100 30% 65%;  /* Verde pastel (#8BBD8B) */
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 82 16% 52%; /* Verde oliva (#8B9474) */
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 30 89% 66%; /* Laranja claro (#F5A65B) */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 82 16% 60%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 82 16% 45%;
+    --sidebar-ring: 82 16% 40%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 82 16% 52%;  /* Verde oliva (#8B9474) */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 100 30% 55%;  /* Verde amarelado (#C1CC99) */
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 100 30% 65%;  /* Verde pastel (#8BBD8B) */
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 82 16% 30%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 30 89% 66%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 82 16% 40%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 82 16% 25%;
+    --sidebar-ring: 82 16% 20%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Legal document typography - increased font sizes */
+  .legal-document {
+    font-family: 'Crimson Text', serif;
+    line-height: 1.6;
+    color: #1a1a1a;
+  }
+
+  .legal-document h1 {
+    font-size: 20px; /* Increased from 18px */
+    font-weight: 600;
+    text-align: center;
+    margin: 28px 0 20px 0; /* Increased margins */
+    text-transform: uppercase;
+    letter-spacing: 0.8px; /* Increased letter spacing */
+  }
+
+  .legal-document h2 {
+    font-size: 18px; /* Increased from 16px */
+    font-weight: 600;
+    text-align: center;
+    margin: 24px 0 16px 0; /* Increased margins */
+    text-transform: uppercase;
+    letter-spacing: 0.5px; /* Increased letter spacing */
+  }
+
+  .legal-document h3 {
+    font-size: 16px; /* Increased from 14px */
+    font-weight: 600;
+    margin: 20px 0 12px 0; /* Increased margins */
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .legal-document p {
+    font-size: 14px; /* Increased from 12px */
+    margin: 10px 0; /* Increased margins */
+    text-align: justify;
+    text-indent: 2em;
+  }
+
+  .legal-document .no-indent {
+    text-indent: 0;
+  }
+
+  .legal-document .centered {
+    text-align: center;
+    text-indent: 0;
+  }
+
+  .legal-document .right-aligned {
+    text-align: right;
+    text-indent: 0;
+  }
+
+  .legal-document ol, .legal-document ul {
+    margin: 16px 0; /* Increased margins */
+    padding-left: 2em;
+  }
+
+  .legal-document li {
+    font-size: 14px; /* Increased from 12px */
+    margin: 6px 0; /* Increased margins */
+    text-align: justify;
+  }
+
+  .legal-document .signature-block {
+    margin-top: 50px; /* Increased margin */
+    text-align: center;
+  }
+
+  .legal-document .signature-line {
+    border-bottom: 1px solid #000;
+    width: 250px;
+    margin: 25px auto 10px auto; /* Increased margins */
+  }
+
+  /* PDF specific styles */
+  .legal-document-pdf {
+    font-family: 'Crimson Text', 'Times New Roman', serif;
+    line-height: 1.6;
+    color: #000;
+  }
+
+  .legal-document-pdf h1 {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    margin: 28px 0 20px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .legal-document-pdf h2 {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin: 24px 0 16px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .legal-document-pdf h3 {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    margin: 20px 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .legal-document-pdf p {
+    font-size: 14px;
+    margin: 10px 0;
+    text-align: justify;
+    text-indent: 2em;
+  }
+
+  /* Print styles */
+  @media print {
+    .legal-document, .legal-document-pdf {
+      font-size: 14pt; /* Increased from 12pt */
+      line-height: 1.5;
+    }
+    
+    .legal-document h1, .legal-document-pdf h1 {
+      font-size: 18pt; /* Increased from 14pt */
+    }
+    
+    .legal-document h2, .legal-document-pdf h2 {
+      font-size: 16pt; /* Increased from 13pt */
+    }
+    
+    .legal-document h3, .legal-document-pdf h3 {
+      font-size: 14pt; /* Increased from 12pt */
+    }
+    
+    .legal-document p, .legal-document li, 
+    .legal-document-pdf p, .legal-document-pdf li {
+      font-size: 13pt; /* Increased from 11pt */
+    }
+  }
+}
