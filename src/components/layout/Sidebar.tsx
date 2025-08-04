@@ -118,7 +118,7 @@ const Sidebar = ({
         </Button>
       </SubscriptionAccessWrapper>
       
-      <ScrollArea className="flex-1 px-4">
+      <ScrollArea className="flex-1 px-4 pb-6">
         <nav className="flex flex-col gap-2 mb-6">
           {navigationItems.map(item => {
           return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-4 py-3 rounded-md transition-colors", isActive(item.path) ? "bg-white/20 text-white" : `hover:bg-white/10 ${textColor}`)}>
@@ -129,7 +129,7 @@ const Sidebar = ({
         </nav>
         
         <div className="border-t border-white/20 pt-4 mb-6">
-          <div className="px-[8px] py-0">
+          <div className="px-2 py-0">
             <div className="flex items-center justify-between">
               <h4 className={`font-medium ${textColor}`}>Personalizar Tema</h4>
               <Button variant="ghost" size="icon" className={`${textColor} hover:bg-white/10 h-7 w-7`}>
