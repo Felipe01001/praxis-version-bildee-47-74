@@ -118,7 +118,7 @@ const Sidebar = ({
         </Button>
       </SubscriptionAccessWrapper>
       
-      <ScrollArea className="flex-1 px-4 pb-8 h-0">
+      <ScrollArea className="flex-1 px-4 pb-12 h-0 overflow-y-auto">
         <nav className="flex flex-col gap-2 mb-6">
           {navigationItems.map(item => {
           return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-4 py-3 rounded-md transition-colors", isActive(item.path) ? "bg-white/20 text-white" : `hover:bg-white/10 ${textColor}`)}>
