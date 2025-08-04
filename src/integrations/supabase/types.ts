@@ -743,6 +743,7 @@ export type Database = {
           proximo_pagamento: string | null
           role: string | null
           state: string | null
+          theme_settings: Json | null
           updated_at: string
           user_id: string
         }
@@ -762,6 +763,7 @@ export type Database = {
           proximo_pagamento?: string | null
           role?: string | null
           state?: string | null
+          theme_settings?: Json | null
           updated_at?: string
           user_id: string
         }
@@ -781,6 +783,7 @@ export type Database = {
           proximo_pagamento?: string | null
           role?: string | null
           state?: string | null
+          theme_settings?: Json | null
           updated_at?: string
           user_id?: string
         }

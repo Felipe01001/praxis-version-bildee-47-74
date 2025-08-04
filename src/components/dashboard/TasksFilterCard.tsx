@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StatusBadge } from '@/components/StatusBadge';
 import { format } from 'date-fns';
 import { ptBR } from '@/lib/utils';
+import { useTheme } from '@/context/ThemeContext';
 import { SubscriptionAccessWrapper } from '@/components/subscription/SubscriptionAccessWrapper';
 
 interface TasksFilterCardProps {
@@ -25,6 +26,7 @@ interface TasksFilterCardProps {
 
 export default function TasksFilterCard({ tasks, clients, cases, addTask }: TasksFilterCardProps) {
   const navigate = useNavigate();
+  const { headerColor } = useTheme();
   const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -93,7 +95,7 @@ export default function TasksFilterCard({ tasks, clients, cases, addTask }: Task
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
+            <Calendar className="h-5 w-5" style={{ color: headerColor }} />
             Tarefas
           </CardTitle>
           <p className="text-sm text-muted-foreground">

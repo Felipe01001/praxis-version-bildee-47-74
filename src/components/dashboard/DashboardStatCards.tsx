@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserRound, FileCheck, CalendarClock, Users, FileText } from 'lucide-react';
 import { useHoverEffect } from '@/hooks/useHoverEffect';
+import { useTheme } from '@/context/ThemeContext';
 import { SubscriptionAccessWrapper } from '@/components/subscription/SubscriptionAccessWrapper';
 
 interface DashboardStatCardsProps {
@@ -18,6 +19,7 @@ const DashboardStatCards = ({
   totalJudicialProcesses
 }: DashboardStatCardsProps) => {
   const { handleMouseEnter, handleMouseLeave } = useHoverEffect();
+  const { headerColor } = useTheme();
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -30,7 +32,7 @@ const DashboardStatCards = ({
           >
             <CardHeader className="pb-2 flex-shrink-0">
               <CardTitle className="text-sm md:text-base lg:text-lg flex items-center gap-2 h-[40px] line-clamp-2">
-                <Users className="h-5 w-5 flex-shrink-0 text-praxis-olive" />
+                <Users className="h-5 w-5 flex-shrink-0" style={{ color: headerColor }} />
                 <span>Total de Clientes</span>
               </CardTitle>
             </CardHeader>
@@ -50,7 +52,7 @@ const DashboardStatCards = ({
           >
             <CardHeader className="pb-2 flex-shrink-0">
               <CardTitle className="text-sm md:text-base lg:text-lg flex items-center gap-2 h-[40px] line-clamp-2">
-                <FileCheck className="h-5 w-5 flex-shrink-0 text-praxis-olive" />
+                <FileCheck className="h-5 w-5 flex-shrink-0" style={{ color: headerColor }} />
                 <span>Total de Atendimentos</span>
               </CardTitle>
             </CardHeader>
@@ -70,7 +72,7 @@ const DashboardStatCards = ({
           >
             <CardHeader className="pb-2 flex-shrink-0">
               <CardTitle className="text-sm md:text-base lg:text-lg flex items-center gap-2 h-[40px] line-clamp-2">
-                <CalendarClock className="h-5 w-5 flex-shrink-0 text-praxis-olive" />
+                <CalendarClock className="h-5 w-5 flex-shrink-0" style={{ color: headerColor }} />
                 <span>Total de Tarefas</span>
               </CardTitle>
             </CardHeader>
@@ -90,7 +92,7 @@ const DashboardStatCards = ({
           >
             <CardHeader className="pb-2 flex-shrink-0">
               <CardTitle className="text-sm md:text-base lg:text-lg flex items-center gap-2 h-[40px] line-clamp-2">
-                <FileText className="h-5 w-5 flex-shrink-0 text-praxis-olive" />
+                <FileText className="h-5 w-5 flex-shrink-0" style={{ color: headerColor }} />
                 <span>Processos Judiciais</span>
               </CardTitle>
             </CardHeader>
