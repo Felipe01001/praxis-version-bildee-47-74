@@ -129,7 +129,7 @@ const Sidebar = ({
         </nav>
         
         <div className="border-t border-white/20 pt-4 mb-6">
-          <div className="px-4 py-2">
+          <div className="px-[8px] py-0">
             <div className="flex items-center justify-between">
               <h4 className={`font-medium ${textColor}`}>Personalizar Tema</h4>
               <Button variant="ghost" size="icon" className={`${textColor} hover:bg-white/10 h-7 w-7`}>
