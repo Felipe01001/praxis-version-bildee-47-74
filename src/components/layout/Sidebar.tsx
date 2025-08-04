@@ -97,7 +97,7 @@ const Sidebar = ({
   return <aside className={sidebarClasses} style={{
     backgroundColor: headerColor
   }}>
-      <div className="flex items-center justify-between p-4">
+      <div className="flex items-center justify-between p-4 py-[4px]">
         <Link to="/" className={`text-2xl font-bold ${textColor}`}>
           Praxis
         </Link>
